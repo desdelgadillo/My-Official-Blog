@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desmond Delgadillo | Digital Independence</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0044cc;
+            --text-dark: #1a1a1a;
+            --text-light: #444444;
+            --bg-soft: #f4f7f9;
+            --white: #ffffff;
+        }
+
+        body { font-family: 'Inter', sans-serif; line-height: 1.8; color: var(--text-dark); margin: 0; padding: 0; }
+        main { max-width: 850px; margin: 0 auto; padding: 4rem 2rem; }
+        nav { display: flex; justify-content: flex-end; gap: 2rem; margin-bottom: 4rem; }
+        nav a { text-decoration: none; color: var(--primary); font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        h1 { font-size: clamp(2.5rem, 6vw, 3.5rem); font-weight: 800; line-height: 1.1; margin-bottom: 2rem; letter-spacing: -0.03em; }
+        .hero-blurb { font-family: 'Lora', serif; font-size: 1.4rem; color: var(--text-light); margin-bottom: 3rem; border-left: 4px solid var(--primary); padding-left: 1.5rem; }
+        
+        .contact-links { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 5rem; }
+        .btn { padding: 0.8rem 1.5rem; border-radius: 5px; text-decoration: none; font-weight: 700; transition: all 0.2s ease; display: inline-block; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-outline { border: 2px solid var(--primary); color: var(--primary); }
+
+        #blog-posts { margin-top: 2rem; padding-top: 3rem; border-top: 1px solid #eee; }
+        .post-card { padding: 1rem 0; border-bottom: 1px solid #f0f0f0; }
+        .post-title { font-size: 1.3rem; font-weight: 700; margin: 0; color: var(--text-dark); }
+        .post-date { font-size: 0.85rem; color: #777; text-transform: uppercase; }
+        
+        /* Skeleton loading state */
+        .loading { opacity: 0.5; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <main>
+        <nav>
+            <a href="#blog-posts">Insights</a>
+            <a href="mailto:desdelgadillo@gmail.com">Contact</a>
+        </nav>
+
+        <header id="hero-section">
+            <h1 id="main-headline" class="loading">Loading Digital Independence...</h1>
+            <div id="main-blurb" class="hero-blurb">
+                </div>
+        </header>
+
+        <section>
+            <div class="contact-links">
+                <a href="mailto:desdelgadillo@gmail.com" class="btn btn-primary">Email me</a>
+                <a href="https://linkedin.com/in/desdelgadillo" target="_blank" class="btn btn-outline">LinkedIn Profile</a>
+            </div>
+        </section>
+
+        <section id="blog-posts">
+            <h2>Latest Posts</h2>
+            <div id="posts-container"></div>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/@sanity/client@6.12.0/dist/@sanity/client.umd.js"></script>
+    <script>
+        const client = window._sanityClient.createClient({
+            projectId: '0g3j5g3v',
+            dataset: 'production',
+            useCdn: true,
+            apiVersion: '2023-05-03',
+        });
+
+        async function initSite() {
+            // 1. Fetch Homepage Content & Blog Posts in one go
+            const query = `{
+                "home": *[_type == "homepage"][0]{headline, "blurbText": pt::text(blurb)},
+                "posts": *[_type == "post"] | order(publishedAt desc) [0...5] {title, publishedAt}
+            }`;
+
+            try {
+                const data = await client.fetch(query);
+                
+                // Update Headline
+                const headlineEl = document.getElementById('main-headline');
+                headlineEl.innerText = data.home?.headline || "Take back your Digital Independence.";
+                headlineEl.classList.remove('loading');
+
+                // Update Blurb
+                document.getElementById('main-blurb').innerText = data.home?.blurbText || "Helping people live life on their terms through technology.";
+
+                // Update Blog Posts
+                const container = document.getElementById('posts-container');
+                if (data.posts?.length > 0) {
+                    container.innerHTML = data.posts.map(post => `
+                        <article class="post-card">
+                            <span class="post-date">${new Date(post.publishedAt).toLocaleDateString()}</span>
+                            <p class="post-title">${post.title}</p>
+                        </article>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p>Check back soon for new insights.</p>';
+                }
+
+            } catch (error) {
+                console.error("Sanity Error:", error);
+                document.getElementById('main-headline').innerText = "Desmond Delgadillo";
+            }
+        }
+
+        initSite();
+    </script>
+</body>
+</html>
