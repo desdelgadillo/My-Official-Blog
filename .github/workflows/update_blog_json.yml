@@ -1,1 +1,36 @@
+name: Update Blog JSON
+on:
+  push:
+    paths:
+      - 'posts/*.html' # Only run when a file in the posts folder changes
 
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build JSON from HTML files
+        run: |
+          # This tiny script finds all HTML files, grabs the title and date,
+          # and formats them into the JSON structure you need.
+          echo "[" > blog.json
+          first=true
+          for file in $(ls -t posts/*.html | grep -v "blog_template.html"); do
+            title=$(grep -oP '(?<=<h1 class="article-title">).*?(?=</h1>)' "$file" || echo "Untitled")
+            date=$(grep -oP '(?<=<span class="article-date">).*?(?=</span>)' "$file" || echo "No Date")
+            excerpt=$(grep -oP '(?<=<p>).*?(?=</p>)' "$file" | head -1 | sed 's/<[^>]*>//g' || echo "Read more...")
+            
+            if [ "$first" = false ]; then echo "," >> blog.json; fi
+            echo "  { \"title\": \"$title\", \"date\": \"$date\", \"excerpt\": \"$excerpt\", \"url\": \"$file\" }" >> blog.json
+            first=false
+          done
+          echo "]" >> blog.json
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add blog.json
+          git commit -m "Auto-update blog.json" || exit 0
+          git push
