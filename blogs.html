@@ -4,59 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resources | Desmond Delgadillo</title>
-    <style>
-        /* Mirroring Homepage Styles */
-        :root { 
-            --primary: #0044cc; 
-            --text: #1a1a1a; 
-            --text-muted: #555;
-            --bg-soft: #f8f9fa;
-            --footer-bg: #2d3436;
-        }
-
-        body { 
-            font-family: system-ui, -apple-system, sans-serif; 
-            line-height: 1.8; 
-            color: var(--text); 
-            max-width: 75ch; 
-            margin: 0 auto; 
-            display: flex; 
-            flex-direction: column; 
-            min-height: 100vh;
-        }
-        
-        nav { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 1.5rem 2rem; 
-            border-bottom: 1px solid #eee; 
-        }
-        nav a { text-decoration: none; color: var(--text); font-weight: 600; margin-left: 20px; }
-        nav .logo { margin-left: 0; color: var(--primary); font-weight: 800; font-size: 1.2rem; }
-
-        main { padding: 4rem 2rem; flex: 1; }
-        h1 { font-size: 2.5rem; margin-bottom: 3rem; letter-spacing: -0.02em; }
-        
-        /* Post Card Styling */
-        .post-card { 
-            margin-bottom: 3rem; 
-            padding: 1.5rem; 
-            border-radius: 8px;
-            background: #ffffff;
-            border: 1px solid #eee;
-            transition: border-color 0.3s ease;
-        }
-        .post-card:hover { border-color: var(--primary); }
-        .post-card h2 { margin: 0 0 0.5rem 0; color: var(--primary); font-size: 1.6rem; }
-        .post-date { font-size: 0.85rem; color: #777; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 1rem; }
-        .read-more { font-weight: bold; color: var(--primary); text-decoration: none; display: inline-block; margin-top: 1rem; }
-        .read-more:hover { text-decoration: underline; }
-
-        /* Footer */
-        footer { background: var(--footer-bg); color: #ffffff; padding: 4rem 2rem; margin-top: 5rem; }
-        .footer-content { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; max-width: 75ch; margin: 0 auto; }
-        .footer-links a { display: block; color: #81ecec; text-decoration: none; margin-bottom: 0.8rem; font-weight: 500; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -103,16 +51,16 @@
                     return;
                 }
                 container.innerHTML = data.map(post => `
-                    <article class="post-card">
-                        <span class="post-date">${post.date}</span>
-                        <h2>${post.title}</h2>
+                    <article class="post-card" style="margin-bottom: 3rem; padding: 1.5rem; border: 1px solid #eee; border-radius: 8px;">
+                        <span class="article-date">${post.date}</span>
+                        <h2 style="color: var(--primary); margin: 0.5rem 0;">${post.title}</h2>
                         <p>${post.excerpt}</p>
-                        <a href="${post.url}" class="read-more">Read Full Resource &rarr;</a>
+                        <a href="${post.url}" style="font-weight: bold; color: var(--primary); text-decoration: none;">Read Full Resource &rarr;</a>
                     </article>
                 `).join('');
             })
             .catch(() => {
-                document.getElementById('blog-container').innerHTML = "<p>Unable to load resources. Please contact me directly for help.</p>";
+                document.getElementById('blog-container').innerHTML = "<p>Unable to load resources.</p>";
             });
     </script>
 </body>
