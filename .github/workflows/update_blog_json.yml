@@ -1,26 +1,72 @@
-name: Update Blog JSON
+name: Markdown to HTML and Update JSON
 on:
   push:
     paths:
-      - 'posts/*.html' # Only run when a file in the posts folder changes
+      - 'drafts/*.md'
+  workflow_dispatch:
 
 jobs:
-  update-json:
+  convert-and-update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build JSON from HTML files
+      - name: Install Pandoc
+        run: sudo apt-get install -y pandoc
+
+      - name: Convert Markdown to HTML
         run: |
-          # This tiny script finds all HTML files, grabs the title and date,
-          # and formats them into the JSON structure you need.
+          for file in drafts/*.md; do
+            filename=$(basename "$file" .md)
+            
+            # Extract metadata from Markdown Frontmatter
+            title=$(grep "title:" "$file" | cut -d':' -f2- | xargs)
+            date=$(grep "date:" "$file" | cut -d':' -f2- | xargs)
+            excerpt=$(grep "excerpt:" "$file" | cut -d':' -f2- | xargs)
+            
+            # Generate the HTML body from Markdown (starting after the second ---)
+            body=$(sed '1,/---/d;1,/---/d' "$file" | pandoc -f markdown -t html)
+            
+            # Construct the full HTML file using your template structure
+            cat <<EOF > posts/${filename}.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <title>${title} | Desmond Delgadillo</title>
+              <link rel="stylesheet" href="../style.css">
+          </head>
+          <body>
+              <nav><a href="../index.html" class="logo">DD</a><div><a href="../index.html">Home</a><a href="../blogs.html">Resources</a></div></nav>
+              <main>
+                  <article>
+                      <header class="article-header">
+                          <span class="article-date">${date}</span>
+                          <h1 class="article-title">${title}</h1>
+                          <div class="article-excerpt" style="font-size: 1.25rem; color: #444; margin-top: 1rem; font-style: italic;">
+                              <p>${excerpt}</p>
+                          </div>
+                      </header>
+                      <div class="article-content">${body}</div>
+                      <div style="margin-top: 4rem;"><a href="../blogs.html" style="color: #0044cc; font-weight: bold; text-decoration: none;">&larr; Back to all resources</a></div>
+                  </article>
+              </main>
+              <footer><div class="footer-content"><div><strong>Desmond Delgadillo</strong><p>Assistive Tech Resource Center</p></div><div class="footer-links"><a href="../index.html">Home</a><a href="mailto:desdelgadillo@gmail.com">Email</a></div></div></footer>
+          </body>
+          </html>
+          EOF
+          done
+
+      - name: Build JSON
+        run: |
           echo "[" > blog.json
           first=true
-          for file in $(ls -t posts/*.html | grep -v "blog_template.html"); do
-            title=$(grep -oP '(?<=<h1 class="article-title">).*?(?=</h1>)' "$file" || echo "Untitled")
-            date=$(grep -oP '(?<=<span class="article-date">).*?(?=</span>)' "$file" || echo "No Date")
-            excerpt=$(grep -oP '(?<=<p>).*?(?=</p>)' "$file" | head -1 | sed 's/<[^>]*>//g' || echo "Read more...")
-            
+          for file in $(ls posts/*.html | grep -v "blog_template.html"); do
+            title=$(sed -n 's/.*<title>\(.*\) | Desmond Delgadillo.*/\1/p' "$file" | head -1)
+            date=$(sed -n 's/.*<span class="article-date">\(.*\)<\/span>.*/\1/p' "$file" | head -1)
+            excerpt=$(sed -n 's/.*<div class="article-excerpt"[^>]*><p>\(.*\)<\/p><\/div>.*/\1/p' "$file" | head -1)
             if [ "$first" = false ]; then echo "," >> blog.json; fi
             echo "  { \"title\": \"$title\", \"date\": \"$date\", \"excerpt\": \"$excerpt\", \"url\": \"$file\" }" >> blog.json
             first=false
@@ -31,6 +77,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add blog.json
-          git commit -m "Auto-update blog.json" || exit 0
+          git add posts/*.html blog.json
+          git commit -m "Automated Markdown conversion and JSON update" || exit 0
           git push
