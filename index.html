@@ -6,65 +6,59 @@
     <title>Desmond Delgadillo | Digital Independence</title>
     
     <style>
-        :root { --primary: #0044cc; --text: #1a1a1a; }
+        :root { --primary: #0044cc; --text: #1a1a1a; --bg: #ffffff; }
         body { 
             font-family: system-ui, -apple-system, sans-serif; 
-            line-height: 1.6; 
+            line-height: 1.8; 
             color: var(--text); 
-            max-width: 800px; 
+            max-width: 850px; 
             margin: 0 auto; 
-            padding: 2rem; 
+            padding: 0; 
         }
-        .hero { margin-bottom: 3rem; }
-        h1 { font-size: 2.5rem; color: var(--text); margin-bottom: 1rem; }
-        .blurb { font-size: 1.25rem; color: #444; border-left: 4px solid var(--primary); padding-left: 1rem; }
-        .post-card { border-bottom: 1px solid #eee; padding: 1rem 0; }
-        .error-msg { color: #666; font-style: italic; }
+        
+        /* Navigation Styles */
+        nav { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #eee;
+        }
+        nav a { text-decoration: none; color: var(--text); font-weight: 600; margin-left: 20px; }
+        nav .logo { margin-left: 0; color: var(--primary); font-weight: 800; }
+        nav a:hover { color: var(--primary); }
+
+        main { padding: 4rem 2rem; }
+        h1 { font-size: 3rem; line-height: 1.1; margin-bottom: 2rem; }
+        .blurb { font-size: 1.25rem; color: #444; border-left: 4px solid var(--primary); padding-left: 1.5rem; margin-bottom: 3rem; }
+        
+        .cta-section { margin-top: 4rem; }
+        .btn { padding: 0.8rem 1.5rem; border-radius: 5px; text-decoration: none; font-weight: 700; background: var(--primary); color: white; display: inline-block; }
     </style>
 </head>
 <body>
 
-    <header class="hero">
-        <h1>Take back your Digital Independence.</h1>
-        <div class="blurb">
-            <p>Using technology has never been a bigger difference maker in finding jobs, receiving high quality education, and just living life on your terms.</p>
-            <p><strong>I thrive on helping people obtain their digital independence.</strong></p>
+    <nav>
+        <a href="index.html" class="logo">DD</a>
+        <div>
+            <a href="index.html">Home</a>
+            <a href="blogs.html">Blog</a>
         </div>
-    </header>
+    </nav>
 
-    <section id="blog-section">
-        <h2>Latest Insights</h2>
-        <div id="json-posts">
-            <p class="loading">Loading posts...</p>
-        </div>
-    </section>
+    <main>
+        <header>
+            <h1>Take back your Digital Independence.</h1>
+            <div class="blurb">
+                <p>Using technology has never been a bigger difference maker in finding jobs, receiving high quality education, and just living life on your terms. <strong>I thrive on helping people obtain their digital independence.</strong></p>
+                <p>As a lifelong user of assistive technology—from braille to screen readers—I live the solutions I teach.</p>
+            </div>
+            <div class="cta-section">
+                <a href="mailto:desdelgadillo@gmail.com" class="btn">Connect with me</a>
+                <p style="margin-top: 2rem;">Interested in my thoughts? <a href="blogs.html">Read my blog posts &rarr;</a></p>
+            </div>
+        </header>
+    </main>
 
-    <script>
-        // Use a relative path to find blog.json in the same folder
-        fetch('./blog.json')
-            .then(response => {
-                if (!response.ok) throw new Error("File not found");
-                return response.json();
-            })
-            .then(data => {
-                const container = document.getElementById('json-posts');
-                if (data.length === 0) {
-                    container.innerHTML = "<p>New posts coming soon.</p>";
-                    return;
-                }
-                container.innerHTML = data.map(post => `
-                    <article class="post-card">
-                        <h3>${post.title}</h3>
-                        <p>${post.excerpt}</p>
-                        <a href="${post.url}">Read More</a>
-                    </article>
-                `).join('');
-            })
-            .catch(err => {
-                console.error("JSON Load Error:", err);
-                document.getElementById('json-posts').innerHTML = 
-                    "<p class='error-msg'>View my latest updates on LinkedIn while the blog is updating.</p>";
-            });
-    </script>
 </body>
 </html>
