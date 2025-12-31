@@ -4,7 +4,7 @@ date: December 30, 2025
 excerpt: A quick test to see how our new automation robot turns simple text into a professional resource page and stuff.
 ---
 
-Welcome to your first automated post! Writing in Markdown is much faster than HTML because you can focus on the words rather than the tags.
+Welcome to your first automated post! Writing in Markdown is much faster than HTML because you can focus on the words rather than the tags. Yes.
 
 ## Why use Markdown?
 Markdown is a "plain text" language that is very easy for screen readers to navigate. Here are a few things you can do easily:
