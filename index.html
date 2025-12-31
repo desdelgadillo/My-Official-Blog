@@ -4,62 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desmond Delgadillo | Digital Independence</title>
-    <meta name="description" content="Assistive Tech Trainer helping individuals achieve digital independence through braille and screen reader mastery.">
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-
     <style>
-        :root { --primary: #0044cc; --text: #1a1a1a; --bg: #ffffff; --bg-soft: #f4f7f9; }
-        body { font-family: 'Inter', sans-serif; line-height: 1.8; color: var(--text); margin: 0; }
-        main { max-width: 850px; margin: 0 auto; padding: 4rem 2rem; }
-        
-        h1 { font-size: clamp(2.5rem, 6vw, 3.5rem); font-weight: 800; margin-bottom: 2rem; letter-spacing: -0.03em; }
-        .hero-blurb { font-family: 'Lora', serif; font-size: 1.4rem; color: #444; border-left: 4px solid var(--primary); padding-left: 1.5rem; margin-bottom: 3rem; }
-        
-        .btn { padding: 0.8rem 1.5rem; border-radius: 5px; text-decoration: none; font-weight: 700; display: inline-block; background: var(--primary); color: white; }
-        
-        #blog-feed { margin-top: 5rem; border-top: 1px solid #eee; padding-top: 2rem; }
-        .post-card { margin-bottom: 2rem; }
-        .post-card a { text-decoration: none; color: var(--text); }
-        .post-card h3 { margin: 0; color: var(--primary); }
-        .post-date { font-size: 0.8rem; color: #777; }
+        :root { --primary: #0044cc; --text: #1a1a1a; }
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            line-height: 1.6; 
+            color: var(--text); 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 2rem; 
+        }
+        .hero { margin-bottom: 3rem; }
+        h1 { font-size: 2.5rem; color: var(--text); margin-bottom: 1rem; }
+        .blurb { font-size: 1.25rem; color: #444; border-left: 4px solid var(--primary); padding-left: 1rem; }
+        .post-card { border-bottom: 1px solid #eee; padding: 1rem 0; }
+        .error-msg { color: #666; font-style: italic; }
     </style>
 </head>
 <body>
 
-    <main>
-        <header>
-            <h1>Take back your Digital Independence.</h1>
-            <div class="hero-blurb">
-                <p>Using technology has never been a bigger difference maker in finding jobs, receiving high quality education, and just living life on your terms. <strong>I thrive on helping people obtain their digital independence.</strong></p>
-                <p>As a lifelong user of assistive technology—from braille to screen readers—I live the solutions I teach.</p>
-            </div>
-            <a href="mailto:desdelgadillo@gmail.com" class="btn">Connect with me</a>
-        </header>
+    <header class="hero">
+        <h1>Take back your Digital Independence.</h1>
+        <div class="blurb">
+            <p>Using technology has never been a bigger difference maker in finding jobs, receiving high quality education, and just living life on your terms.</p>
+            <p><strong>I thrive on helping people obtain their digital independence.</strong></p>
+        </div>
+    </header>
 
-        <section id="blog-feed">
-            <h2>Latest Insights</h2>
-            <div id="json-posts">Loading posts...</div>
-        </section>
-    </main>
+    <section id="blog-section">
+        <h2>Latest Insights</h2>
+        <div id="json-posts">
+            <p class="loading">Loading posts...</p>
+        </div>
+    </section>
 
     <script>
-        // Fetches your local blog.json file
+        // Use a relative path to find blog.json in the same folder
         fetch('./blog.json')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error("File not found");
+                return response.json();
+            })
             .then(data => {
                 const container = document.getElementById('json-posts');
+                if (data.length === 0) {
+                    container.innerHTML = "<p>New posts coming soon.</p>";
+                    return;
+                }
                 container.innerHTML = data.map(post => `
                     <article class="post-card">
-                        <small class="post-date">${post.date}</small>
-                        <a href="${post.url}"><h3>${post.title}</h3></a>
+                        <h3>${post.title}</h3>
                         <p>${post.excerpt}</p>
+                        <a href="${post.url}">Read More</a>
                     </article>
                 `).join('');
             })
             .catch(err => {
-                document.getElementById('json-posts').innerHTML = "Visit my LinkedIn for recent updates.";
+                console.error("JSON Load Error:", err);
+                document.getElementById('json-posts').innerHTML = 
+                    "<p class='error-msg'>View my latest updates on LinkedIn while the blog is updating.</p>";
             });
     </script>
 </body>
