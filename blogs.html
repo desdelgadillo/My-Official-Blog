@@ -3,49 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog | Desmond Delgadillo</title>
+    <title>Resources | Desmond Delgadillo</title>
     <style>
-        :root { --primary: #0044cc; --text: #1a1a1a; }
-        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.8; color: var(--text); max-width: 850px; margin: 0 auto; padding: 0; }
+        /* Mirroring Homepage Styles */
+        :root { 
+            --primary: #0044cc; 
+            --text: #1a1a1a; 
+            --text-muted: #555;
+            --bg-soft: #f8f9fa;
+            --footer-bg: #2d3436;
+        }
+
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            line-height: 1.8; 
+            color: var(--text); 
+            max-width: 75ch; 
+            margin: 0 auto; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh;
+        }
         
-        nav { display: flex; justify-content: space-between; padding: 1.5rem 2rem; border-bottom: 1px solid #eee; }
-        nav a { text-decoration: none; color: var(--text); font-weight: 600; margin-left: 20px; }
-        
-        main { padding: 4rem 2rem; }
-        h1 { font-size: 2.5rem; margin-bottom: 3rem; }
-        
-        .post-card { 
-            margin-bottom: 3rem; 
-            padding-bottom: 2rem; 
+        nav { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 1.5rem 2rem; 
             border-bottom: 1px solid #eee; 
         }
-        .post-card h2 { margin: 0 0 0.5rem 0; color: var(--primary); }
-        .post-date { font-size: 0.9rem; color: #666; display: block; margin-bottom: 1rem; }
-        .read-more { font-weight: bold; color: var(--primary); text-decoration: none; }
+        nav a { text-decoration: none; color: var(--text); font-weight: 600; margin-left: 20px; }
+        nav .logo { margin-left: 0; color: var(--primary); font-weight: 800; font-size: 1.2rem; }
+
+        main { padding: 4rem 2rem; flex: 1; }
+        h1 { font-size: 2.5rem; margin-bottom: 3rem; letter-spacing: -0.02em; }
+        
+        /* Post Card Styling */
+        .post-card { 
+            margin-bottom: 3rem; 
+            padding: 1.5rem; 
+            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid #eee;
+            transition: border-color 0.3s ease;
+        }
+        .post-card:hover { border-color: var(--primary); }
+        .post-card h2 { margin: 0 0 0.5rem 0; color: var(--primary); font-size: 1.6rem; }
+        .post-date { font-size: 0.85rem; color: #777; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 1rem; }
+        .read-more { font-weight: bold; color: var(--primary); text-decoration: none; display: inline-block; margin-top: 1rem; }
+        .read-more:hover { text-decoration: underline; }
+
+        /* Footer */
+        footer { background: var(--footer-bg); color: #ffffff; padding: 4rem 2rem; margin-top: 5rem; }
+        .footer-content { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; max-width: 75ch; margin: 0 auto; }
+        .footer-links a { display: block; color: #81ecec; text-decoration: none; margin-bottom: 0.8rem; font-weight: 500; }
     </style>
 </head>
 <body>
 
     <nav>
-        <a href="index.html" style="color: var(--primary); font-weight: 800;">DD</a>
+        <a href="index.html" class="logo">DD</a>
         <div>
             <a href="index.html">Home</a>
-            <a href="blogs.html">Blog</a>
+            <a href="blogs.html">Resources</a>
         </div>
     </nav>
 
     <main>
-        <h1>Latest Insights</h1>
-        <div id="blog-container">Loading your digital independence insights...</div>
+        <h1>Latest Resources</h1>
+        <div id="blog-container">
+            <p style="font-style: italic; color: #666;">Loading the knowledge base...</p>
+        </div>
     </main>
+
+    <footer>
+        <div class="footer-content">
+            <div>
+                <strong style="font-size: 1.2rem;">Desmond Delgadillo</strong>
+                <p style="opacity: 0.8; margin-top: 0.5rem;">Assistive Tech Resource Center</p>
+            </div>
+            <div class="footer-links">
+                <strong>Explore</strong>
+                <a href="index.html">Home</a>
+                <a href="https://linkedin.com/in/desdelgadillo" target="_blank">LinkedIn</a>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSe6kCnAw-L-RRtAQnJhDFnq2sSwyXxpSoTGh3_LyZHMLtzH9w/viewform?usp=sf_link" target="_blank">Inquiry Form</a>
+            </div>
+        </div>
+    </footer>
 
     <script>
         fetch('./blog.json')
-            .then(response => response.json())
+            .then(res => {
+                if(!res.ok) throw new Error();
+                return res.json();
+            })
             .then(data => {
                 const container = document.getElementById('blog-container');
                 if (data.length === 0) {
-                    container.innerHTML = "<p>New articles are currently in the works. Check back soon!</p>";
+                    container.innerHTML = "<p>I am currently drafting new resources. Please check back shortly.</p>";
                     return;
                 }
                 container.innerHTML = data.map(post => `
@@ -53,12 +107,12 @@
                         <span class="post-date">${post.date}</span>
                         <h2>${post.title}</h2>
                         <p>${post.excerpt}</p>
-                        <a href="${post.url}" class="read-more">Read Article &rarr;</a>
+                        <a href="${post.url}" class="read-more">Read Full Resource &rarr;</a>
                     </article>
                 `).join('');
             })
-            .catch(err => {
-                document.getElementById('blog-container').innerHTML = "Unable to load posts at this time.";
+            .catch(() => {
+                document.getElementById('blog-container').innerHTML = "<p>Unable to load resources. Please contact me directly for help.</p>";
             });
     </script>
 </body>
