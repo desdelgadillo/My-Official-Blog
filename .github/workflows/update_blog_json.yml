@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Install Pandoc
         run: sudo apt-get install -y pandoc
@@ -22,28 +20,26 @@ jobs:
       - name: Convert Markdown to HTML
         run: |
           mkdir -p posts
-          echo "Checking drafts folder..."
-          ls -R drafts/
-          
+          # Loop through every .md file in the drafts folder
           for file in drafts/*.md; do
             if [ -f "$file" ]; then
-              echo "Converting $file..."
               filename=$(basename "$file" .md)
-              
-              # Extracting Metadata
-              title=$(grep "^title:" "$file" | head -1 | cut -d':' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-              date=$(grep "^date:" "$file" | head -1 | cut -d':' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-              excerpt=$(grep "^excerpt:" "$file" | head -1 | cut -d':' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-              
-              # Fallback values
-              title=${title:-"Untitled Resource"}
-              date=${date:-"No Date"}
-              excerpt=${excerpt:-"Read the full resource."}
-              
-              # Convert Body
-              body=$(sed '1,/---/d;1,/---/d' "$file" | pandoc -f markdown -t html)
-              
-              # Create HTML
+              echo "Processing $filename..."
+
+              # Improved Metadata Extraction
+              # This looks for 'title:' and grabs everything after it
+              title=$(grep -i "^title:" "$file" | head -1 | sed 's/[Tt]itle:[[:space:]]*//' || echo "New Resource")
+              date=$(grep -i "^date:" "$file" | head -1 | sed 's/[Dd]ate:[[:space:]]*//' || echo "Recently Added")
+              excerpt=$(grep -i "^excerpt:" "$file" | head -1 | sed 's/[Ee]xcerpt:[[:space:]]*//' || echo "Click to read more.")
+
+              # Remove any remaining dash characters from the start/end
+              title=$(echo "$title" | sed 's/^---//; s/---$//')
+
+              # Generate the Body (everything after the second ---)
+              # If your file doesn't have a second ---, it just converts the whole file
+              body=$(sed '1,/---/d;1,/---/d' "$file" | pandoc -f markdown -t html || pandoc -f markdown -t html "$file")
+
+              # Write the HTML file
               cat <<EOF > posts/${filename}.html
           <!DOCTYPE html>
           <html lang="en">
@@ -72,28 +68,26 @@ jobs:
             fi
           done
 
-      - name: Build JSON
+      - name: Update JSON
         run: |
           echo "[" > blog.json
           first=true
-          # Only look at generated html files in posts/
           for file in posts/*.html; do
-            if [ -f "$file" ] && [[ "$file" != *"blog_template.html"* ]]; then
-              title=$(sed -n 's/.*<title>\(.*\) | Desmond Delgadillo.*/\1/p' "$file" | head -1)
-              date=$(sed -n 's/.*<span class="article-date">\(.*\)<\/span>.*/\1/p' "$file" | head -1)
-              excerpt=$(sed -n 's/.*<div class="article-excerpt"[^>]*><p>\(.*\)<\/p><\/div>.*/\1/p' "$file" | head -1)
-              
-              if [ "$first" = false ]; then echo "," >> blog.json; fi
-              echo "  { \"title\": \"$title\", \"date\": \"$date\", \"excerpt\": \"$excerpt\", \"url\": \"$file\" }" >> blog.json
-              first=false
-            fi
+            if [[ "$file" == *"blog_template.html"* ]]; then continue; fi
+            title=$(sed -n 's/.*<title>\(.*\) | Desmond Delgadillo.*/\1/p' "$file" | head -1)
+            date=$(sed -n 's/.*<span class="article-date">\(.*\)<\/span>.*/\1/p' "$file" | head -1)
+            excerpt=$(sed -n 's/.*<div class="article-excerpt"[^>]*><p>\(.*\)<\/p><\/div>.*/\1/p' "$file" | head -1)
+            
+            if [ "$first" = false ]; then echo "," >> blog.json; fi
+            echo "  { \"title\": \"$title\", \"date\": \"$date\", \"excerpt\": \"$excerpt\", \"url\": \"$file\" }" >> blog.json
+            first=false
           done
           echo "]" >> blog.json
 
-      - name: Commit and Push
+      - name: Push Changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add posts/*.html blog.json
-          git commit -m "Auto-build posts from drafts" || exit 0
+          git commit -m "Auto-build from drafts" || exit 0
           git push
