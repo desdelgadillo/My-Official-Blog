@@ -3,20 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desmond Delgadillo | Digital Independence</title>
+    <title>Desmond Delgadillo | Resources for Assistive Tech Learners</title>
     
     <style>
-        :root { --primary: #0044cc; --text: #1a1a1a; --bg: #ffffff; }
+        :root { 
+            --primary: #0044cc; 
+            --text: #1a1a1a; 
+            --text-muted: #444;
+            --bg-soft: #f9f9f9;
+        }
         body { 
             font-family: system-ui, -apple-system, sans-serif; 
             line-height: 1.8; 
             color: var(--text); 
-            max-width: 850px; 
+            max-width: 800px; 
             margin: 0 auto; 
-            padding: 0; 
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         
-        /* Navigation Styles */
         nav { 
             display: flex; 
             justify-content: space-between; 
@@ -26,14 +33,24 @@
         }
         nav a { text-decoration: none; color: var(--text); font-weight: 600; margin-left: 20px; }
         nav .logo { margin-left: 0; color: var(--primary); font-weight: 800; }
-        nav a:hover { color: var(--primary); }
 
-        main { padding: 4rem 2rem; }
-        h1 { font-size: 3rem; line-height: 1.1; margin-bottom: 2rem; }
-        .blurb { font-size: 1.25rem; color: #444; border-left: 4px solid var(--primary); padding-left: 1.5rem; margin-bottom: 3rem; }
+        main { padding: 4rem 2rem; flex: 1; }
+        h1 { font-size: 2.2rem; line-height: 1.2; margin-bottom: 2rem; color: var(--text); }
         
-        .cta-section { margin-top: 4rem; }
-        .btn { padding: 0.8rem 1.5rem; border-radius: 5px; text-decoration: none; font-weight: 700; background: var(--primary); color: white; display: inline-block; }
+        .intro-text { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2rem; }
+        .signature { margin-top: 2rem; font-style: italic; border-top: 1px solid #eee; padding-top: 1rem; }
+        
+        .btn { padding: 0.8rem 1.8rem; border-radius: 6px; text-decoration: none; font-weight: 700; background: var(--primary); color: white; display: inline-block; transition: all 0.2s; }
+        .btn:hover { background: #0033aa; transform: translateY(-1px); }
+
+        footer { 
+            background: var(--bg-soft); 
+            padding: 3rem 2rem; 
+            border-top: 1px solid #eee; 
+            margin-top: 4rem;
+        }
+        .footer-content { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; }
+        .footer-links a { display: block; color: var(--primary); text-decoration: none; margin-bottom: 0.5rem; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -42,23 +59,42 @@
         <a href="index.html" class="logo">DD</a>
         <div>
             <a href="index.html">Home</a>
-            <a href="blogs.html">Blog</a>
+            <a href="blogs.html">Resources</a>
         </div>
     </nav>
 
     <main>
         <header>
-            <h1>Take back your Digital Independence.</h1>
-            <div class="blurb">
-                <p>Using technology has never been a bigger difference maker in finding jobs, receiving high quality education, and just living life on your terms. <strong>I thrive on helping people obtain their digital independence.</strong></p>
-                <p>As a lifelong user of assistive technology—from braille to screen readers—I live the solutions I teach.</p>
+            <h1>Desmond Delgadillo | Resources for Assistive Tech Learners</h1>
+            
+            <div class="intro-text">
+                <p>I hope some of the resources you find here are useful to you. If just one post helps you in your journey, then I've done my job.</p>
+                <p>Please reach out with any questions using the form below or via the email in the footer. Happy learning!</p>
             </div>
-            <div class="cta-section">
-                <a href="mailto:desdelgadillo@gmail.com" class="btn">Connect with me</a>
-                <p style="margin-top: 2rem;">Interested in my thoughts? <a href="blogs.html">Read my blog posts &rarr;</a></p>
+
+            <div class="signature">
+                <p>--Des Delgadillo<br>
+                Your friendly assistive tech teacher.</p>
+            </div>
+
+            <div style="margin-top: 3rem;">
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSe6kCnAw-L-RRtAQnJhDFnq2sSwyXxpSoTGh3_LyZHMLtzH9w/viewform?usp=sf_link" target="_blank" class="btn">Reach Out with Questions</a>
             </div>
         </header>
     </main>
+
+    <footer>
+        <div class="footer-content">
+            <div>
+                <strong>Desmond Delgadillo</strong>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">Assistive Tech Resources</p>
+            </div>
+            <div class="footer-links">
+                <a href="https://linkedin.com/in/desdelgadillo" target="_blank">LinkedIn</a>
+                <a href="mailto:desdelgadillo@gmail.com">desdelgadillo@gmail.com</a>
+            </div>
+        </div>
+    </footer>
 
 </body>
 </html>
