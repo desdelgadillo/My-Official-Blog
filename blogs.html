@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | Desmond Delgadillo</title>
+    <style>
+        :root { --primary: #0044cc; --text: #1a1a1a; }
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.8; color: var(--text); max-width: 850px; margin: 0 auto; padding: 0; }
+        
+        nav { display: flex; justify-content: space-between; padding: 1.5rem 2rem; border-bottom: 1px solid #eee; }
+        nav a { text-decoration: none; color: var(--text); font-weight: 600; margin-left: 20px; }
+        
+        main { padding: 4rem 2rem; }
+        h1 { font-size: 2.5rem; margin-bottom: 3rem; }
+        
+        .post-card { 
+            margin-bottom: 3rem; 
+            padding-bottom: 2rem; 
+            border-bottom: 1px solid #eee; 
+        }
+        .post-card h2 { margin: 0 0 0.5rem 0; color: var(--primary); }
+        .post-date { font-size: 0.9rem; color: #666; display: block; margin-bottom: 1rem; }
+        .read-more { font-weight: bold; color: var(--primary); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" style="color: var(--primary); font-weight: 800;">DD</a>
+        <div>
+            <a href="index.html">Home</a>
+            <a href="blogs.html">Blog</a>
+        </div>
+    </nav>
+
+    <main>
+        <h1>Latest Insights</h1>
+        <div id="blog-container">Loading your digital independence insights...</div>
+    </main>
+
+    <script>
+        fetch('./blog.json')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('blog-container');
+                if (data.length === 0) {
+                    container.innerHTML = "<p>New articles are currently in the works. Check back soon!</p>";
+                    return;
+                }
+                container.innerHTML = data.map(post => `
+                    <article class="post-card">
+                        <span class="post-date">${post.date}</span>
+                        <h2>${post.title}</h2>
+                        <p>${post.excerpt}</p>
+                        <a href="${post.url}" class="read-more">Read Article &rarr;</a>
+                    </article>
+                `).join('');
+            })
+            .catch(err => {
+                document.getElementById('blog-container').innerHTML = "Unable to load posts at this time.";
+            });
+    </script>
+</body>
+</html>
