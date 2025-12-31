@@ -39,29 +39,36 @@
     </footer>
 
     <script>
-        fetch('./blog.json')
-            .then(res => {
-                if(!res.ok) throw new Error();
-                return res.json();
-            })
-            .then(data => {
-                const container = document.getElementById('blog-container');
-                if (data.length === 0) {
-                    container.innerHTML = "<p>I am currently drafting new resources. Please check back shortly.</p>";
-                    return;
-                }
-                container.innerHTML = data.map(post => `
-                    <article class="post-card" style="margin-bottom: 3rem; padding: 1.5rem; border: 1px solid #eee; border-radius: 8px;">
-                        <span class="article-date">${post.date}</span>
-                        <h2 style="color: var(--primary); margin: 0.5rem 0;">${post.title}</h2>
-                        <p>${post.excerpt}</p>
-                        <a href="${post.url}" style="font-weight: bold; color: var(--primary); text-decoration: none;">Read Full Resource &rarr;</a>
-                    </article>
-                `).join('');
-            })
-            .catch(() => {
-                document.getElementById('blog-container').innerHTML = "<p>Unable to load resources.</p>";
-            });
-    </script>
+    fetch('./blog.json')
+        .then(res => {
+            if(!res.ok) throw new Error();
+            return res.json();
+        })
+        .then(data => {
+            const container = document.getElementById('blog-container');
+            if (data.length === 0) {
+                container.innerHTML = "<p>I am currently drafting new resources. Please check back shortly.</p>";
+                return;
+            }
+            container.innerHTML = data.map(post => `
+                <article class="post-card" style="margin-bottom: 3rem; padding: 1.5rem; border: 1px solid #eee; border-radius: 8px;">
+                    <span class="article-date">${post.date}</span>
+                    
+                    <a href="${post.url}" style="text-decoration: none;">
+                        <h2 style="color: var(--primary); margin: 0.5rem 0; text-decoration: underline;">${post.title}</h2>
+                    </a>
+                    
+                    <p>${post.excerpt}</p>
+                    
+                    <a href="${post.url}" class="read-more" style="font-weight: bold; color: var(--primary); text-decoration: none;">
+                        Read Full Resource <span aria-hidden="true">&rarr;</span>
+                    </a>
+                </article>
+            `).join('');
+        })
+        .catch(() => {
+            document.getElementById('blog-container').innerHTML = "<p>Unable to load resources.</p>";
+        });
+</script>
 </body>
 </html>
