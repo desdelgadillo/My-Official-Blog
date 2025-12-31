@@ -2,8 +2,8 @@ name: Markdown to HTML and Update JSON
 on:
   push:
     paths:
-      - 'drafts/*.md'
-  workflow_dispatch:
+      - 'drafts/**'
+  workflow_dispatch: # Allows us to trigger it manually
 
 jobs:
   convert-and-update:
@@ -11,25 +11,38 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Install Pandoc
         run: sudo apt-get install -y pandoc
 
       - name: Convert Markdown to HTML
         run: |
+          # Ensure the posts directory exists
+          mkdir -p posts
+          
+          # Loop through every .md file in the drafts folder
           for file in drafts/*.md; do
+            [ -e "$file" ] || continue
+            echo "Processing $file..."
+            
             filename=$(basename "$file" .md)
             
-            # Extract metadata from Markdown Frontmatter
-            title=$(grep "title:" "$file" | cut -d':' -f2- | xargs)
-            date=$(grep "date:" "$file" | cut -d':' -f2- | xargs)
-            excerpt=$(grep "excerpt:" "$file" | cut -d':' -f2- | xargs)
+            # Extract metadata
+            title=$(grep "^title:" "$file" | head -1 | cut -d':' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+            date=$(grep "^date:" "$file" | head -1 | cut -d':' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+            excerpt=$(grep "^excerpt:" "$file" | head -1 | cut -d':' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
             
-            # Generate the HTML body from Markdown (starting after the second ---)
+            # Set defaults if empty
+            title=${title:-"Untitled Resource"}
+            date=${date:-"No Date"}
+            excerpt=${excerpt:-"Click to read more."}
+            
+            # Convert body (skipping frontmatter)
             body=$(sed '1,/---/d;1,/---/d' "$file" | pandoc -f markdown -t html)
             
-            # Construct the full HTML file using your template structure
+            # Write the HTML file
             cat <<EOF > posts/${filename}.html
           <!DOCTYPE html>
           <html lang="en">
@@ -45,15 +58,13 @@ jobs:
                       <header class="article-header">
                           <span class="article-date">${date}</span>
                           <h1 class="article-title">${title}</h1>
-                          <div class="article-excerpt" style="font-size: 1.25rem; color: #444; margin-top: 1rem; font-style: italic;">
-                              <p>${excerpt}</p>
-                          </div>
+                          <div class="article-excerpt" style="font-size: 1.25rem; color: #444; margin-top: 1rem; font-style: italic;"><p>${excerpt}</p></div>
                       </header>
                       <div class="article-content">${body}</div>
                       <div style="margin-top: 4rem;"><a href="../blogs.html" style="color: #0044cc; font-weight: bold; text-decoration: none;">&larr; Back to all resources</a></div>
                   </article>
               </main>
-              <footer><div class="footer-content"><div><strong>Desmond Delgadillo</strong><p>Assistive Tech Resource Center</p></div><div class="footer-links"><a href="../index.html">Home</a><a href="mailto:desdelgadillo@gmail.com">Email</a></div></div></footer>
+              <footer><div class="footer-content"><div><strong>Desmond Delgadillo</strong><p>Assistive Tech Resource Center</p></div><div class="footer-links"><a href="../index.html">Home</a><a href="https://linkedin.com/in/desdelgadillo" target="_blank">LinkedIn</a></div></div></footer>
           </body>
           </html>
           EOF
@@ -63,20 +74,25 @@ jobs:
         run: |
           echo "[" > blog.json
           first=true
-          for file in $(ls posts/*.html | grep -v "blog_template.html"); do
+          # Find all HTML files except the template
+          for file in posts/*.html; do
+            [ -e "$file" ] || continue
+            if [[ "$file" == *"blog_template.html"* ]]; then continue; fi
+            
             title=$(sed -n 's/.*<title>\(.*\) | Desmond Delgadillo.*/\1/p' "$file" | head -1)
             date=$(sed -n 's/.*<span class="article-date">\(.*\)<\/span>.*/\1/p' "$file" | head -1)
             excerpt=$(sed -n 's/.*<div class="article-excerpt"[^>]*><p>\(.*\)<\/p><\/div>.*/\1/p' "$file" | head -1)
+            
             if [ "$first" = false ]; then echo "," >> blog.json; fi
             echo "  { \"title\": \"$title\", \"date\": \"$date\", \"excerpt\": \"$excerpt\", \"url\": \"$file\" }" >> blog.json
             first=false
           done
           echo "]" >> blog.json
 
-      - name: Commit changes
+      - name: Commit and Push
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add posts/*.html blog.json
-          git commit -m "Automated Markdown conversion and JSON update" || exit 0
+          git commit -m "Auto-update from Drafts" || exit 0
           git push
